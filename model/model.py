@@ -49,7 +49,7 @@ class Model:
                 id_attrazione= dizionario['id_attrazione']
                 if id_tour1 == id_tour2:
                     result.append((id_tour1,id_attrazione))
-        return result
+        return result #
 
 
 
