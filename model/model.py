@@ -12,7 +12,7 @@ class Model:
         self._costo = 0
 
         # TODO: Aggiungere eventuali altri attributi
-        self.tour_attrazione= TourDAO.get_tour_attrazioni()
+
 
         # Caricamento
         self.load_tour()
@@ -41,15 +41,19 @@ class Model:
         """
 
         # TODO
-        result= []
-        for tour in self.tour_map:
-            id_tour1= tour.id
-            for dizionario in self.tour_attrazione:
-                id_tour2= dizionario['id_tour']
-                id_attrazione= dizionario['id_attrazione']
-                if id_tour1 == id_tour2:
-                    result.append((id_tour1,id_attrazione))
-        return result #
+        relazioni = TourDAO.get_tour_attrazioni() # è una lista di dizionari
+
+        for r in relazioni: # iteriamo sui singoli dizionari nella lista
+            id_tour= r['id_tour']
+            id_attr= r['id_attr']
+
+            tour= self.tour_map.get(id_tour)
+            attr= self.attrazioni_map.get(id_attr)
+
+            tour.attrazioni.add(attr) # facendo così ho un set(con oggetti all'interno)
+            attr.tour.add(tour)
+
+
 
 
 
@@ -70,6 +74,27 @@ class Model:
         self._valore_ottimo = -1
 
         # TODO
+
+        tour_regioni = [
+            t for t in self.tour_map.values()
+            if t.id_regione == id_regione
+        ]
+
+
+        tour_regioni.sort(key=lambda x: x.costo)
+
+        # avvio la ricorsione
+        self._ricorsione(
+            start_index=0,
+            pacchetto_parziale=[],
+            durata_corrente=0,
+            costo_corrente=0,
+            valore_corrente=0,
+            attrazioni_usate=set(),
+            tour_regioni=tour_regioni,
+            max_giorni=max_giorni,
+            max_budget=max_budget
+        )
 
         return self._pacchetto_ottimo, self._costo, self._valore_ottimo
 
